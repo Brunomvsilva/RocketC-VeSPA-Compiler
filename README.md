@@ -1,1 +1,2 @@
-# VeSPA-C-Compiler
+# RocketC – A VeSPA C Compiler
+
