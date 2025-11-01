@@ -93,9 +93,28 @@ As stated before, this was implemented using the open source GNU Flex tool.
 - Supports regular expressions for easy token definition  
 - Commonly used in real compilers (GCC, Clang, etc.)
 
+The following elements were defined in the **lexer**:  
+**reserved words**, **special symbols**, and their corresponding **regular expressions**.
 
+<p align="center">
+  <img src="Images/LexerReservedWords.png" alt="Reserved Words" width="36%">
+  <img src="Images/LexerSpecialSymbols.png" alt="Special Symbols" width="26%">
+  <img src="Images/LexerRegularExp.png" alt="Regular Expressions" width="30%">
+</p>
+
+> **Limitations:**  
+> The following C features are **not supported** in this version of the compiler:  
+> `struct`, `typedef`, `enum`, `union`, `sizeof`, `->`, `.`
+
+### Complete Lexer File (`LexScanner.l`)
+
+The full lexer implementation for the VeSPA C Compiler is available here:  
+[`Compiler/Lexer/LexScanner.l`](Compiler/Lexer/LexScanner.l)
 
 ---
+
+## Syntatic Analysis
+
 
 
 
