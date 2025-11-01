@@ -77,5 +77,25 @@ The goal of this project is to design and implement a full compilation flow capa
 
 ## Lexical Analysis
 
+Lexical analysis is the **first stage of the compiler**. Its role is to read the input C source code and convert it into a sequence of **tokens**.
+Anything that doesn't match the expected patterns of the language is reported as a **lexical error**.
+As stated before, this was implemented using the open source GNU Flex tool.
+
+**GNU Flex**
+
+- Flex reads a specification file (`.l`) containing **regular expressions for tokens**.
+- It generates a C source file that scans the input program and **produces tokens**.
+- These tokens are then passed to the syntax parser (Bison).
+
+**Why Flex is used:**
+- Fast and efficient token scanning  
+- Easy integration with C and Bison/Yacc  
+- Supports regular expressions for easy token definition  
+- Commonly used in real compilers (GCC, Clang, etc.)
+
+
+
+---
+
 
 
