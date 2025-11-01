@@ -115,6 +115,12 @@ The full lexer implementation for the VeSPA C Compiler is available here:
 
 ## Syntatic Analysis
 
+Syntatic analysis, also known as parsing, involves analyzing the
+code to determine its grammatical structure based on language rules.
+The designated syntactic analyzer generator is GNU Bison, a widely used, open source, bottom up
+parser generator that transforms grammar descriptions into C or C++ code for syntax analysis. It is also
+compatible with Flex, which allows a seamless integration of lexical and syntactic analysis.
+
 
 
 
