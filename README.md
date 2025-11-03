@@ -125,51 +125,127 @@ If the input does not follow the grammar, a **syntax error** is reported.
 ### GNU Bison
 
 This stage is implemented using **GNU Bison**, a parser generator that works alongside Flex.
+**GNU Bison is a bottom-up parser generator**. It reads a grammar specification file (`.y`) written in BNF (Backus–Naur Form) syntax.
 
-- Bison reads a grammar specification file (`.y`) written in a BNF-like (Backus–Naur Form) syntax.
+It generates a **bottom-up** **LR parser**, which works as follows:
 
-### Why Bison is used:
-
-- Automatically generates efficient LR parsers  
-- Integrates seamlessly with **Flex**  
-- ✅ Supports complex grammar definitions  
-- ✅ Used in real compilers like **GCC**, making it ideal for learning and development
-
-
-### ✅ Is Bison Bottom-Up?
-
-Yes. **GNU Bison is a bottom-up parser generator**.  
-More specifically, it generates an **LR parser** (by default LR(1)), which works as follows:
-
-- Reads tokens from the lexer (Flex) **from left to right**
+- Reads tokens from the lexer **from left to right**
 - **Shifts** tokens onto a parsing stack
 - **Reduces** groups of tokens according to grammar rules
 - Repeats this process until everything is reduced into the **start symbol** of the grammar
 
-This means the parser builds the structure of the program **from the bottom (tokens) to the top (full syntax tree)**.
+### Why Bison is used:
 
----
-
-### ✅ Why LR / Bottom-Up Parsing?
-
-- ✔ Can parse a **wider range of grammars** than top-down (LL) parsers  
-- ✔ Naturally handles **left recursion**  
-- ✔ Provides **stronger syntax error detection**  
-- ✔ Used in real compilers like **GCC**, making it ideal for **C-like languages**
+- Integrates with **Flex**  
+- Supports complex grammar definitions  
+- Used in real compilers like **GCC**
 
 
-
-
----
-
-### Supported Syntax Features
-
----
-
-### Complete Parser File (`SyntaxParser.y`)
+### Grammar Rules
 
 The complete grammar specifications are implemented in:  
 [`Compiler/Parser/SyntaxParser.y`](Compiler/Parser/SyntaxParser.y)
+
+### AST Nodes
+
+This table details different types of nodes commonly found in an AST, along with their specific child nodes. Each row represents a type of node, and the columns indicate the different types of child nodes.
+
+<p align="center">
+  <img src="Images/PArserNodes.png" alt="PArserNodes.png" width="650">
+</p>
+
+---
+
+## Semantic Analysis
+
+Semantic analysis is the **third stage of the compiler**.  
+While syntax analysis checks if the structure of the program is valid, semantic analysis ensures it also makes **logical sense according to C language rules**.
+
+It verifies:
+- Variables are **declared before use**
+- **Type compatibility** in expressions and assignments
+- **Scope rules** are followed
+- Functions are called with the **correct number and types of arguments**
+
+---
+
+### 🔹 Symbol Table & Scoped Organization
+
+The compiler uses a **scoped symbol table system**, implemented with **hash tables** for fast insertion and lookup of identifiers.
+
+Each block of code (global, function, or `{ }` block) has its own symbol table, and these tables are organized in a **hierarchical structure**.
+
+<p align="center">
+  <img src="Images/ScopedSymbolTable.png" alt="Scoped Symbol Table" width="650">
+</p>
+
+<p align="center">
+  <img src="Images/SymbTableExxample.png" alt="Symbol Table Example" width="650">
+</p>
+
+#### Key Features:
+- Each symbol is associated with **the scope in which it was declared**
+- Uses **nearest scope resolution** – the compiler searches the current scope first, then moves outward to parent scopes
+- **Avoids naming conflicts** across different parts of the program
+- **Hash tables** store symbols efficiently, and **linked lists** are used to handle hash collisions.
+
+#### Visibility Rules:
+- A variable declared in an **outer scope is visible to all inner scopes**
+- A variable declared in an **inner scope is NOT visible outside that scope**
+
+---
+
+### Type-Checking - Strongly-Typed C
+
+The VeSPA compiler implements a **strongly-typed subset of the C language**, which is more restrictive than standard C.
+
+In **standard C**, the language is considered **weakly typed**, meaning many implicit or unsafe type conversions are allowed (sometimes with just a warning). This flexibility is powerful but can result in undefined behavior.
+
+In **VeSPA C**, the compiler enforces stricter rules, so if a type is incorrect or incompatible, **the program will not compile**.
+
+### Enforced Type Rules
+
+- Array indices must be of type `INT`, `SHORT`, or `LONG`
+- Increment (`++`) and decrement (`--`) operations are only valid on variables and pointers
+- `switch` and `case` conditions must evaluate to `INT` or `CHAR`
+- Conditions in `if`, `while`, `do-while`, `switch`, and ternary (`?:`) **cannot be of type `STRING`**
+- Bitwise operators (`&`, `|`, `^`, `<<`, `>>`) only accept operands of type `INT`, `CHAR`, `SHORT`, or `LONG`
+- Division by zero is not allowed
+- Assigning a pointer to another pointer is allowed
+- Assigning the address of a variable to a pointer is allowed
+- Assigning a `STRING` to a `CHAR*` pointer is allowed
+- Assigning an `INT` value to a `CHAR` variable is allowed
+- Pointer typecasting is allowed
+
+---
+## Constant Folding Optimization
+
+Constant folding is an optimization that checks the AST for operations where all operands are constants.  
+If possible, it evaluates the result at compile time so the code generation phase has fewer nodes to process.
+
+### Example
+
+**Before:**
+```
+       (-)
+      /   \
+    (+)     10
+   /   \
+  x     (*)
+       /   \
+      3     7
+```
+
+**After**
+```
+       (-)
+      /   \
+    (+)     10
+   /   \
+  x     21
+```
+    
+## Code Generation
 
 
 
