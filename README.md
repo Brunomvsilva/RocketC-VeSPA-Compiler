@@ -286,85 +286,7 @@ Code Generation main flowchart is shown below
   <img src="Images/FlowChartGenCode.png" alt="FlowChartGenCode.png" width="190">
 </p>
 
-
-### Stack Management
-
-To support function calls, local variables, recursion, and parameter passing, the compiler implements a **stack-based execution model** that follows the ABI (Application Binary Interface).
-
-**Stack Behavior**
-- The **stack grows downwards** (towards lower memory addresses).
-- **R3 – Stack Pointer (SP)** always points to the top of the stack.
-- **R2 – Frame Pointer (FP)** stores the base address of the current function's stack frame.
-- Each function call creates its own **stack frame**, making recursion and nested calls possible.
-
 ---
-
-#### ➤ Parameter Passing & Return Values
-- Function parameters are passed via the **stack**.
-- The **first argument** is placed at the first available stack location **above FP**.
-- Parameters are accessed with **positive offsets from FP**.
-- **Return values** are stored in **R4** (default ABI convention).
-- **Exception:** for multiplication and division functions, parameters are passed using **R4 and R5**, due to their custom implementation.
-
----
-
-#### ➤ Stack Frame Layout
-
-Each function has its own **stack frame**, divided into:
-| Section | Location (relative to FP) | Description |
-|---------|----------------------------|-------------|
-| Arguments | FP + 1, FP + 2, ...       | Function parameters |
-| Return Address | FP - 1               | Address to return after function execution |
-| Previous Frame Pointer | FP           | Link to caller's frame |
-| Local Variables | FP - 2, FP - 3, ... | Stored in negative offsets |
-
-<p align="center">
-  <img src="Images/StackFrameCall.png" alt="Stack Frame Call" width="450">
-</p>
-
-<p align="center">
-  <img src="Images/StackFrameLayout.png" alt="Stack Frame Layout" width="450">
-</p>
-
----
-
-#### ➤ Function Call Sequence (Caller → Callee)
-
-1. Caller pushes **arguments** onto the stack.  
-2. Caller saves **return address** and the **current FP**.  
-3. Caller updates FP = SP.  
-4. Callee allocates **space for local variables** (SP = SP - local_size).  
-5. Upon return:
-   - Local variables are deallocated.
-   - Previous FP and return address are restored.
-   - Control jumps back to the caller.
-
----
-
-#### ➤ Register Management
-
-Since the ISA provides a limited number of registers (R0–R31), a **dynamic register allocator** was designed:
-- Registers **R12 to R31** are considered **temporary registers** (as defined by the ABI).
-- The function `getNextAvailableReg()` returns the next free register for use.
-- Once a register is no longer needed, `releaseReg()` frees it.
-- This allows **efficient reuse of registers** and prevents unnecessary stack load/stores.
-
----
-
-#### ➤ Why This Matters?
-
-Implementing proper stack and register management allows:
-- Support for **recursive function calls**
-- Handling of **local and global variables**
-- Respecting ABI for **parameter passing and returns**
-- Clean **caller–callee separation**
-- Easier **code generation and debugging**
-
----
-
-This stack structure is essential for generating correct assembly code and forms the base for function templates, prologues/epilogues, and calling conventions.
-
-
 
 ### Initialization Code
 
@@ -393,6 +315,7 @@ LDI R31, :FUNCTION_main
 JMP R31, #0 ; Jump to main function
 
 ```
+---
 
 ### Multiplication and Division function code generation
 
@@ -411,6 +334,120 @@ To support these operations, the compiler generates calls to **custom assembly f
 |-----------|-----------|
 | Multiplication | Shift-and-add multiplication |
 | Division & Modulus | Restoring division algorithm |
+
+---
+### Stack and Global Variables Management
+
+To support **function calls, local variables, recursion** and **parameter passing**, the compiler implements a **stack-based execution model** that follows the **ABI (Application Binary Interface)**.
+
+### Stack Behavior
+
+- The **stack grows downward**, toward lower memory addresses.  
+- **R3 – Stack Pointer (SP)** always points to the top of the stack.  
+- **R2 – Frame Pointer (FP)** marks the base address of the current stack frame.  
+- Each function call creates a new **stack frame**, enabling recursion and nested calls.
+
+### Global Variables
+
+- Global variables are stored at the **bottom of RAM**, starting from **0x00**.  
+- They are persistent throughout program execution and do not reside on the stack.
+
+---
+
+<div style="display: flex; gap: 20px; align-items: flex-start;">
+
+  <!-- Left Table -->
+  <div style="flex: 1;">
+    <h3>Parameter Passing and Return Values</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Mechanism</th>
+          <th>Convention</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Argument passing</strong></td>
+          <td>All function parameters are passed on the <strong>stack</strong>.</td>
+        </tr>
+        <tr>
+          <td><strong>Access location</strong></td>
+          <td>First argument at <strong>FP + 1</strong>, second at <strong>FP + 2</strong>, etc.</td>
+        </tr>
+        <tr>
+          <td><strong>Return value</strong></td>
+          <td>Stored in <strong>R4</strong>, as defined by the ABI.</td>
+        </tr>
+        <tr>
+          <td><strong>Special case (Mul/Div)</strong></td>
+          <td>Parameters passed via <strong>R4</strong> and <strong>R5</strong> for efficiency.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Right Table -->
+  <div style="flex: 1;">
+    <h3>Stack Frame Layout</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Address (relative to FP)</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Arguments</strong></td>
+          <td>FP + 1, FP + 2, …</td>
+          <td>Parameters from the caller</td>
+        </tr>
+        <tr>
+          <td><strong>Return Address</strong></td>
+          <td>FP - 1</td>
+          <td>Address to resume execution</td>
+        </tr>
+        <tr>
+          <td><strong>Previous FP</strong></td>
+          <td>FP</td>
+          <td>Saved frame pointer of the caller</td>
+        </tr>
+        <tr>
+          <td><strong>Local Variables</strong></td>
+          <td>FP - 2, FP - 3, …</td>
+          <td>Function-local variables</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div align="center">
+  <img src="Images/StackDesign1.png" alt="Stack Frame 1" width="30%">
+  <img src="Images/StackDesign2.png" alt="Stack Frame 2" width="68%">
+</div>
+
+**Function Call Sequence**
+
+- Caller pushes **arguments** onto the stack.  
+- Caller pushes the **return address**.  
+- Current **FP is saved**, and FP is updated to SP.  
+- Callee reserves space for **local variables** (SP = SP – size).  
+- On return:
+  - Local variables are freed (SP restored).  
+  - Previous FP and return address are restored.  
+  - Control returns to the caller.
+
+**This stack design ensures:**
+- Support for **recursion and nested calls**  
+- Separation of **local** and **global** data  
+- ABI-compliant **parameter passing and return values**  
+- A **caller–callee structure** for code generation, prologues and epilogues  
+
+---
 
 ### AST Code generation
 
