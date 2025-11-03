@@ -218,6 +218,7 @@ In **VeSPA C**, the compiler enforces stricter rules, so if a type is incorrect 
 - Pointer typecasting is allowed
 
 ---
+
 ## Constant Folding Optimization
 
 Constant folding is an optimization that checks the AST for operations where all operands are constants.  
@@ -285,6 +286,86 @@ Code Generation main flowchart is shown below
   <img src="Images/FlowChartGenCode.png" alt="FlowChartGenCode.png" width="190">
 </p>
 
+
+### Stack Management
+
+To support function calls, local variables, recursion, and parameter passing, the compiler implements a **stack-based execution model** that follows the ABI (Application Binary Interface).
+
+**Stack Behavior**
+- The **stack grows downwards** (towards lower memory addresses).
+- **R3 – Stack Pointer (SP)** always points to the top of the stack.
+- **R2 – Frame Pointer (FP)** stores the base address of the current function's stack frame.
+- Each function call creates its own **stack frame**, making recursion and nested calls possible.
+
+---
+
+#### ➤ Parameter Passing & Return Values
+- Function parameters are passed via the **stack**.
+- The **first argument** is placed at the first available stack location **above FP**.
+- Parameters are accessed with **positive offsets from FP**.
+- **Return values** are stored in **R4** (default ABI convention).
+- **Exception:** for multiplication and division functions, parameters are passed using **R4 and R5**, due to their custom implementation.
+
+---
+
+#### ➤ Stack Frame Layout
+
+Each function has its own **stack frame**, divided into:
+| Section | Location (relative to FP) | Description |
+|---------|----------------------------|-------------|
+| Arguments | FP + 1, FP + 2, ...       | Function parameters |
+| Return Address | FP - 1               | Address to return after function execution |
+| Previous Frame Pointer | FP           | Link to caller's frame |
+| Local Variables | FP - 2, FP - 3, ... | Stored in negative offsets |
+
+<p align="center">
+  <img src="Images/StackFrameCall.png" alt="Stack Frame Call" width="450">
+</p>
+
+<p align="center">
+  <img src="Images/StackFrameLayout.png" alt="Stack Frame Layout" width="450">
+</p>
+
+---
+
+#### ➤ Function Call Sequence (Caller → Callee)
+
+1. Caller pushes **arguments** onto the stack.  
+2. Caller saves **return address** and the **current FP**.  
+3. Caller updates FP = SP.  
+4. Callee allocates **space for local variables** (SP = SP - local_size).  
+5. Upon return:
+   - Local variables are deallocated.
+   - Previous FP and return address are restored.
+   - Control jumps back to the caller.
+
+---
+
+#### ➤ Register Management
+
+Since the ISA provides a limited number of registers (R0–R31), a **dynamic register allocator** was designed:
+- Registers **R12 to R31** are considered **temporary registers** (as defined by the ABI).
+- The function `getNextAvailableReg()` returns the next free register for use.
+- Once a register is no longer needed, `releaseReg()` frees it.
+- This allows **efficient reuse of registers** and prevents unnecessary stack load/stores.
+
+---
+
+#### ➤ Why This Matters?
+
+Implementing proper stack and register management allows:
+- Support for **recursive function calls**
+- Handling of **local and global variables**
+- Respecting ABI for **parameter passing and returns**
+- Clean **caller–callee separation**
+- Easier **code generation and debugging**
+
+---
+
+This stack structure is essential for generating correct assembly code and forms the base for function templates, prologues/epilogues, and calling conventions.
+
+
+
 ### Initialization Code
 
 Before generating instructions for user-defined functions or statements, the compiler emits a small block of **initialization code** to properly set up the runtime environment.
@@ -312,8 +393,6 @@ LDI R31, :FUNCTION_main
 JMP R31, #0 ; Jump to main function
 
 ```
-
-### Stack Management
 
 ### Multiplication and Division function code generation
 
