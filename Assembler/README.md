@@ -31,3 +31,12 @@ It is also built using **Flex (lexer)** and **Bison (parser)**.
 ---
 
 ## How to Run
+
+``` bash
+make clean
+make all
+./Output/VASM test.asm
+```
+```
+out.hex will be produced in /Output
+```

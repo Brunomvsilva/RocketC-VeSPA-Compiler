@@ -1,8 +1,8 @@
 INIT:
-    LD R0, #100
+    LDI R0, #0
     LDI R1, #0
     LDI R2, #0
-    LDI R3, #10
+    LD  R3, #1035
     ADD R2, R0, R1
 
 LOOP:
@@ -12,3 +12,5 @@ LOOP:
     SUB R3, R3, #1
     CMP R3, #1
     BGT LOOP
+    
+HALT
