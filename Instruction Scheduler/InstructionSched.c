@@ -624,7 +624,7 @@ int executeStallOptimization(const char *filename, const char *destinationFilena
 }
 
 int main(){
-    const char* inputFilename = "out.asm";        // File for otimization
+    const char* inputFilename = "input.asm";        // File for otimization
     const char* outputFilename = "optimized.asm"; // File otimized
     executeStallOptimization(inputFilename,outputFilename);
 }
