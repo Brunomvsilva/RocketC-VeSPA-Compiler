@@ -461,6 +461,9 @@ All the other templates can be found in the [report](Reports%20and%20Presentatio
 
 ## Assembler
 
+Assembler was implemented with 2 steps, as shown below
+
+
 
 
 ---
