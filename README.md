@@ -459,6 +459,12 @@ All the other templates can be found in the [report](Reports%20and%20Presentatio
 
 ---
 
+## Assembler
+
+
+
+---
+
 ## How to Run the Compiler
 
 ### Install Dependencies
