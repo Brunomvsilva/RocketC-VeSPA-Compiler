@@ -354,79 +354,38 @@ To support **function calls, local variables, recursion** and **parameter passin
 
 ---
 
-<div style="display: flex; gap: 20px; align-items: flex-start;">
+<table>
+<tr>
+<td>
 
-  <!-- Left Table -->
-  <div style="flex: 1;">
-    <h3>Parameter Passing and Return Values</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Mechanism</th>
-          <th>Convention</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Argument passing</strong></td>
-          <td>All function parameters are passed on the <strong>stack</strong>.</td>
-        </tr>
-        <tr>
-          <td><strong>Access location</strong></td>
-          <td>First argument at <strong>FP + 1</strong>, second at <strong>FP + 2</strong>, etc.</td>
-        </tr>
-        <tr>
-          <td><strong>Return value</strong></td>
-          <td>Stored in <strong>R4</strong>, as defined by the ABI.</td>
-        </tr>
-        <tr>
-          <td><strong>Special case (Mul/Div)</strong></td>
-          <td>Parameters passed via <strong>R4</strong> and <strong>R5</strong> for efficiency.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+### Parameter Passing and Return Values
 
-  <!-- Right Table -->
-  <div style="flex: 1;">
-    <h3>Stack Frame Layout</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Section</th>
-          <th>Address (relative to FP)</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Arguments</strong></td>
-          <td>FP + 1, FP + 2, …</td>
-          <td>Parameters from the caller</td>
-        </tr>
-        <tr>
-          <td><strong>Return Address</strong></td>
-          <td>FP - 1</td>
-          <td>Address to resume execution</td>
-        </tr>
-        <tr>
-          <td><strong>Previous FP</strong></td>
-          <td>FP</td>
-          <td>Saved frame pointer of the caller</td>
-        </tr>
-        <tr>
-          <td><strong>Local Variables</strong></td>
-          <td>FP - 2, FP - 3, …</td>
-          <td>Function-local variables</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+| Mechanism | Convention |
+|-----------|------------|
+| **Argument passing** | All function parameters are passed on the stack. |
+| **Access location**   | First argument at FP + 1, second at FP + 2, etc. |
+| **Return value**      | Stored in R4, as defined by the ABI. |
+| **Special case (Mul/Div)** | Parameters passed via R4 and R5. |
 
-</div>
+</td>
+<td>
+
+### Stack Frame Layout
+
+| Section | Address (relative to FP) | Description |
+|---------|---------------------------|-------------|
+| **Arguments** | FP + 1, FP + 2, … | Parameters from the caller |
+| **Return Address** | FP − 1 | Address to resume execution |
+| **Previous FP** | FP | Saved frame pointer |
+| **Local Variables** | FP − 2, FP − 3, … | Function-local variables |
+
+</td>
+</tr>
+</table>
+
 
 <div align="center">
-  <img src="Images/StackDesign1.png" alt="Stack Frame 1" width="30%">
+  <img src="Images/StackDesign1.png" alt="Stack Frame 1" width="29.7%">
   <img src="Images/StackDesign2.png" alt="Stack Frame 2" width="68%">
 </div>
 
@@ -449,7 +408,118 @@ To support **function calls, local variables, recursion** and **parameter passin
 
 ---
 
-### AST Code generation
+## AST Code generation
+
+### Arithmetic Expressions Generation
+
+- Parse the root node
+- If both childs are terminals, the code is generated
+- If not then we parse the non terminal childs (left first)
+
+<p align="center">
+  <img src="Images/CGenTraverseExpressions.png" alt="CGenTraverseExpressions" width="500">
+</p>
+
+### Handling Subtractions with immediates
+
+- VeSPA ALU only allows immediate values on the right operand (Source B), so it was established that nodes with an immediate left child are handled with an add instruction, by negating the immediate value and the result of the sum, as shown below.
+
+  <p align="left"><code>42 - x = -(x + (-42))</code></p>
+
+- Operations with 2 immediates will not exist because we applied constant folding, so they dont need to be handled in this stage.
 
 
+<p align="center">
+  <img src="Images/HandleMinusGenCode.png" alt="Images/HandleMinusGenCode" width="500">
+</p>
+
+### Code Generation Templates
+
+To generate VeSPA assembly, a set of **code generation templates** was defined.  
+Each template specifies how a particular language construct (such as `if`, `while`, assignments, or function calls) is emitted into assembly.
+
+Below is an example of the template used for the **`if` statement**, demonstrating how conditional evaluation, jump labels, and control flow are generated.
+
+All the other templates can be found in the [report](Reports%20and%20Presentation/Compiler_Report.pdf).
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" valign="middle" width="50%">
+      <img src="Images/CGenTemplateIF1.png" alt="IF Tree" width="80%">
+    </td>
+    <td align="center" valign="middle" width="50%">
+      <img src="Images/CGenTemplateIF2.png" alt="IF Assembly" width="60%">
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
+## How to Run the Compiler
+
+### Install Dependencies
+
+```bash
+sudo apt update
+sudo apt install build-essential flex bison make
+```
+
+### Makefile
+
+This project provides a Makefile that can build individual components or the full compiler.
+
+Available targets:
+- `make setup`  — create the `Output/` directory
+- `make lexer`  — generate the lexer (`Output/lex.yy.c`) using Flex
+- `make parser` — generate the parser (`Output/Parser.tab.c/.h`) using Bison (warnings suppressed)
+- `make src`    — compile sources into the executable `Output/RocketC`
+- `make all`    — run: setup → parser → lexer → compile
+- `make prog`   — run the compiler on `TestCodeGen.c`
+- `make clean`  — remove the entire `Output/` directory
+- `make run`    — clean, rebuild everything, then run the test (`TestCodeGen.c`)
+
+Build everything:
+
+    make all
+
+---
+
+### Testing
+
+Two ways to test the compiler.
+
+1) Using your own C file:
+
+```bash    
+./Output/RocketC <SourceFile.c> --parse
+```
+
+2) Using the provided test file in project root (`TestCodeGen.c`):
+
+    `make all`
+   
+    `make prog`
+
+Or, to force a clean rebuild and then run:
+
+    make run
+
+---
+
+## Output
+
+After running the compiler:
+
+- The generated assembly is written to: `Output/Rocket.asm`
+- If the program uses `*`, `/`, or `%`, the compiler inserts predefined multiplication/division/modulo routines at the top of the assembly file.
+  - These routines use `RL` (rotate left) and `RR` (rotate right), since the architecture lacks native multiply/divide instructions.
+  - They are only included when needed.
+- The terminal output also includes:
+  - The Abstract Syntax Tree (AST)
+  - Symbol tables
+  - Any semantic errors or warnings
 
