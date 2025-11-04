@@ -12,49 +12,6 @@ RocketSim is a virtual runtime environment for the VeSPA SoC. It executes VeSPA 
 
 ---
 
-## How to Build
-
-### Using the provided Makefile
-
-    make all      # creates build/, runs CMake, compiles RocketSim
-    make clean    # removes build/
-
-### Manual CMake build (alternative)
-
-    mkdir -p build
-    cd build
-    cmake ..
-    cmake --build .
-
-The executable is produced at: `build/RocketSim`.
-
----
-
-## Run the Example (Fibonacci)
-
-Run the simulator with the provided example program:
-
-    ./build/RocketSim testCode.txt
-
-When prompted with “Waiting on UART RX value…”, type a hex value for N (e.g., `A` for decimal 10) and press Enter.
-
-
-### Example Output (after Fibonacci for N = 0x0A)
-
-    HALT found! Stopping CPU!
-    1. Free Run
-    2. Goto next breakpoint
-    3. Set breakpoint
-    4. Dump registers
-    5. Dump memory
-    6. Exit
-    4
-    R0 -> 55
-    R1 -> 34
-    R2 -> 89
-
----
-
 ## CLI (Command Line Interface)
 
 When RocketSim starts, it shows:
@@ -118,3 +75,47 @@ These lines are typically produced by the VeSPA toolchain/assembler and map dire
 - Up to 16 breakpoints are supported.
 - Breakpoint addresses are in **bytes** (code memory address space).
 - If execution appears to do nothing, verify the input file path and that the lines match the specified format.
+
+---
+
+
+## How to Build
+
+### Using the provided Makefile
+
+    make all      # creates build/, runs CMake, compiles RocketSim
+    make clean    # removes build/
+
+### Manual CMake build (alternative)
+
+    mkdir -p build
+    cd build
+    cmake ..
+    cmake --build .
+
+The executable is produced at: `build/RocketSim`.
+
+---
+
+## Run the Example (Fibonacci)
+
+Run the simulator with the provided example program:
+
+    ./build/RocketSim testCode.txt
+
+When prompted with “Waiting on UART RX value…”, type a hex value for N (e.g., `A` for decimal 10) and press Enter.
+
+
+### Example Output (after Fibonacci for N = 0x0A)
+
+    HALT found! Stopping CPU!
+    1. Free Run
+    2. Goto next breakpoint
+    3. Set breakpoint
+    4. Dump registers
+    5. Dump memory
+    6. Exit
+    4
+    R0 -> 55
+    R1 -> 34
+    R2 -> 89
