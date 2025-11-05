@@ -7,7 +7,7 @@ _A C compiler developed for educational purposes, targeting the VeSPA RISC archi
 ## 📌 Table of Contents
 - [Overview](#overview)
 - [Introduction](#introduction)
-- [Team](#team)
+- [Developer Team](#DeveloperTEAM)
 - [Repository Components](#repository-components)
 - [Tools & Programming Language Used](#tools--programming-language-used)
 - [Compiler Overview](#compiler-overview)
@@ -33,7 +33,6 @@ _A C compiler developed for educational purposes, targeting the VeSPA RISC archi
 - [VeSPA Instruction Scheduler](#vespa-instruction-scheduler)
 - [My Contributions to the RocketC Compiler](#my-contributions-to-the-rocketc-compiler)
   - [Skills Learned](#skills-learned)
-- [Authors](#authors)
 
 
 ---
@@ -48,7 +47,7 @@ The goal of this project is to design and implement a full compilation flow capa
 
 ---
 
-## TEAM  
+## Developer TEAM  
 
 ➡️ This project was developed by a team of 20 students as part of the Embedded Systems course. 
 
