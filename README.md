@@ -7,7 +7,7 @@ _A C compiler developed for educational purposes, targeting the VeSPA RISC archi
 ## 📌 Table of Contents
 - [Overview](#overview)
 - [Introduction](#introduction)
-- [Developer Team](#Developer%20team)
+- [Developer Team](#developer-team)
 - [Repository Components](#repository-components)
 - [Tools & Programming Language Used](#tools--programming-language-used)
 - [Compiler Overview](#compiler-overview)
