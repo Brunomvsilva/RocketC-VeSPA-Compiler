@@ -523,3 +523,44 @@ After running the compiler:
   - Symbol tables
   - Any semantic errors or warnings
 
+---
+
+## VeSPA Simulator
+
+See VeSPA Simulator / Virtual Machine [here](Simulator)
+
+---
+
+## VeSPA Assembler 
+
+See VeSPA Assembler [here](Assembler)
+
+---
+
+## VeSPA Instruction Scheduler
+
+See VeSPA Instruction Scheduler [here](Instruction%20Scheduler)
+
+---
+
+## My Contributions to the RocketC Compiler
+
+- Implemented parts of the **Lexical Analysis (Lexer)**  
+- Helped develop the **Parser and Abstract Syntax Tree (AST)**, including grammar definitions and AST structure.  
+- Took a leading role in the **Code Generation phase** — **one of my main contributions**.  
+- Designed and implemented most of the **Stack Management** — **also one of my main contributions**.  
+- While I did not implement semantic analysis, working on code generation required a solid understanding of **semantics, symbol resolution, and scope handling**.  
+- Participated in discussions on **compiler–hardware trade-offs** to ensure compatibility with the VeSPA architecture.  
+- Contributed to the **technical documentation** and explanation of design decisions.
+
+#### Skills Learned
+
+- Compiler Architecture Design  
+- C Programming and Modular Software Design  
+- Debugging
+- Hardware/Compiler Trade-off Evaluation
+- Problem Solving
+- Team Collaboration
+- Documentation
+
+
