@@ -1,6 +1,6 @@
 # RocketC – A VeSPA C Compiler
 
-_A C compiler built for educational purposes, targeting the VeSPA architecture and generating optimized VeSPA assembly and machine code._
+_A C compiler built for educational purposes, targeting the VeSPA architecture._
 
 ---
 
